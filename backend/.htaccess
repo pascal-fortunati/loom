@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    # Active le module de réécriture d'URL
+    RewriteEngine On
+    
+    # Redirige toutes les requêtes vers index.php
+    # sauf pour les fichiers et dossiers existants
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php?/$1 [L]
+</IfModule>
