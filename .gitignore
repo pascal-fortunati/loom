@@ -1,0 +1,38 @@
+# Fichiers ignorés par Git
+
+# Secrets / fichiers temporaires runtime
+backend/tmp/
+
+# Logs
+*.log
+
+# Uploads (images, etc.)
+uploads/
+backend/uploads/
+
+# Dépendances
+node_modules/
+vendor/
+
+# Cache et fichiers temporaires
+.cache/
+.DS_Store
+Thumbs.db
+
+# Environnement
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Build
+dist/
+build/
+
+# Dossier de génération du rendu DWWM
+_dossier_build/
+docs/
