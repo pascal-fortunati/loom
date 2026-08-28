@@ -7,6 +7,8 @@
 -- =====================================
 -- 1. TABLE UTILISATEURS
 -- =====================================
+SET NAMES utf8mb4;
+
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,

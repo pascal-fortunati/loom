@@ -1,6 +1,7 @@
 <IfModule mod_rewrite.c>
     # Active le module de réécriture d'URL
     RewriteEngine On
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
     
     # Redirige toutes les requêtes vers index.php
     # sauf pour les fichiers et dossiers existants

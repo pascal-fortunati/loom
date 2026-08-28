@@ -80,11 +80,10 @@ define('JWT_EXPIRATION', (int)loomEnv('JWT_EXPIRATION', 86400));
 // CORS - Domaines autorisés
 // ========================================
 
-define('ALLOWED_ORIGINS', [
-    'http://localhost:4200',
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://127.0.0.1:4200',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:5173',
-]);
+define('ALLOWED_ORIGINS', array_values(array_filter(array_map(
+    'trim',
+    explode(',', loomEnv('ALLOWED_ORIGINS', 'http://localhost:8080'))
+))));
+
+// Force UTF-8 pour les réponses et les connexions MySQL.
+ini_set('default_charset', 'UTF-8');

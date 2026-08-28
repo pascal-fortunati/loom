@@ -1,0 +1,68 @@
+services:
+  database:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-loom}
+      MYSQL_USER: ${DB_USER:-loom}
+      MYSQL_PASSWORD: ${DB_PASS:-loom_change_me}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-root_change_me}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/migration_add_messages.sql:/docker-entrypoint-initdb.d/02-messages.sql:ro
+      - ./database/migration_add_notifications.sql:/docker-entrypoint-initdb.d/03-notifications.sql:ro
+      - ./database/05-charset.sql:/docker-entrypoint-initdb.d/05-charset.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [loom]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DB_HOST: database
+      DB_USER: ${DB_USER:-loom}
+      DB_PASS: ${DB_PASS:-loom_change_me}
+      DB_NAME: ${DB_NAME:-loom}
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      APP_NAME: ${APP_NAME:-Loom}
+      APP_ENV: ${APP_ENV:-production}
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8080}
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "${BACKEND_PORT:-8081}:80"
+    volumes:
+      - uploads_data:/var/www/html/uploads
+    networks: [loom]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    networks: [loom]
+
+volumes:
+  db_data:
+  uploads_data:
+
+networks:
+  loom:
+    driver: bridge

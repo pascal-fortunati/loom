@@ -35,19 +35,10 @@ export interface AuthUser {
  *   (loom.dev ne résout pas sur le téléphone, d'où le « Failed to fetch ».)
  */
 function computeApiBaseUrl(): string {
-  if (typeof window === "undefined") return "https://loom.dev/backend";
-  const host = window.location.hostname;
-  if (
-    host === "loom.dev" ||
-    host.endsWith(".loom.dev") ||
-    host === "localhost" ||
-    host === "127.0.0.1"
-  ) {
-    return "https://loom.dev/backend";
-  }
-  // Accès via IP réseau : nginx répond en HTTP sur le port 80 (le certificat SSL
-  // ne couvre que loom.dev, on évite donc HTTPS sur l'IP).
-  return `http://${host}/backend`;
+  if (typeof window === "undefined") return "/backend";
+  // Le frontend Nginx reverse-proxy /backend vers le service PHP. Une URL
+  // relative fonctionne en local, dans Docker et derrière un domaine HTTPS.
+  return "/backend";
 }
 
 const API_BASE_URL = computeApiBaseUrl();
@@ -76,7 +67,7 @@ export async function loginUser(
     body: JSON.stringify({ email, password }),
   });
 
-  const payload: ApiResponse<AuthPayload> = await response.json();
+  const payload: ApiResponse<AuthPayload> = await parseJsonResponse(response);
   if (!response.ok || !payload.success || !payload.data) {
     throw new Error(payload.message || "Connexion impossible");
   }
@@ -97,7 +88,7 @@ export async function registerUser(
     body: JSON.stringify({ username, email, password }),
   });
 
-  const payload: ApiResponse<AuthPayload> = await response.json();
+  const payload: ApiResponse<AuthPayload> = await parseJsonResponse(response);
   if (!response.ok || !payload.success || !payload.data) {
     throw new Error(payload.message || "Inscription impossible");
   }
@@ -113,7 +104,11 @@ export async function fetchMe(token: string): Promise<AuthUser> {
     headers: buildHeaders(token),
   });
 
-  const payload: ApiResponse<AuthUser> = await response.json();
+  if (response.status === 401) {
+    throw new Error("Token invalide ou expiré");
+  }
+
+  const payload: ApiResponse<AuthUser> = await parseJsonResponse(response);
   if (!response.ok || !payload.success || !payload.data) {
     throw new Error(payload.message || "Impossible de récupérer le profil");
   }
@@ -123,6 +118,15 @@ export async function fetchMe(token: string): Promise<AuthUser> {
 /**
  * Expose l'URL API pour les autres services.
  */
+async function parseJsonResponse<T>(response: Response): Promise<ApiResponse<T>> {
+  const text = await response.text();
+  try {
+    return JSON.parse(text) as ApiResponse<T>;
+  } catch {
+    throw new Error("Le serveur a renvoyé une réponse invalide. Consulte les logs backend.");
+  }
+}
+
 export function getApiBaseUrl(): string {
   return API_BASE_URL;
 }

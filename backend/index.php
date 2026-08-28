@@ -80,6 +80,12 @@ try {
 }
 
 
+// Apache peut exposer Authorization dans REDIRECT_HTTP_AUTHORIZATION lorsque
+// mod_rewrite est actif. On le recopie pour que le middleware JWT le récupère.
+if (empty($_SERVER['HTTP_AUTHORIZATION']) && !empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+    $_SERVER['HTTP_AUTHORIZATION'] = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+}
+
 // Récupère la méthode HTTP et l'URI
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

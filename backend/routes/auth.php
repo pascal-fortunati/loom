@@ -28,8 +28,6 @@ return [
         'method' => 'GET',
         'pattern' => '/^GET \/auth\/me$/',
         'handler' => function() {
-            $middleware = new AuthMiddleware();
-            $middleware->authenticate();
             $controller = new AuthController();
             $controller->getMe();
         }

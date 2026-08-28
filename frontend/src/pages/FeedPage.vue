@@ -701,7 +701,7 @@ function filterExternalSubscriptions(
   return subscriptions.filter(
     (item) =>
       !myPassionIds.has(getSubscriptionPassionId(item)) &&
-      item.username.trim().toLowerCase() !== normalizedCurrentUsername,
+      String(item.username || "").trim().toLowerCase() !== normalizedCurrentUsername,
   );
 }
 
@@ -709,7 +709,8 @@ function filterExternalSubscriptions(
  * Normalise le mode de feed venant de l'URL.
  */
 function normalizeFeedMode(rawMode: unknown): FeedMode {
-  return rawMode === "mine" ? "mine" : "subscriptions";
+  const value = Array.isArray(rawMode) ? rawMode[0] : rawMode;
+  return value === "mine" ? "mine" : "subscriptions";
 }
 
 /**
@@ -755,6 +756,9 @@ async function loadPageData(): Promise<void> {
         ? myPosts.value
         : mapPosts(subscriptionsFeedData);
     myPassions.value = passions;
+    // L'API renvoie les abonnements avec `subscription_id` et `passion_page_id`.
+    // On conserve ces objets tels quels afin que l'affichage et le filtrage
+    // utilisent toujours l'identifiant de la passion suivie.
     mySubscriptions.value = filterExternalSubscriptions(
       subscriptions,
       passions,

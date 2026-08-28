@@ -85,7 +85,14 @@ export async function hydrateAuthUser(): Promise<void> {
     avatar.value = me.avatar || "";
     localStorage.setItem("loom-username", me.username);
     localStorage.setItem("loom-avatar", avatar.value);
-  } catch {
-    logout();
+  } catch (error) {
+    // Une requête sans Authorization peut venir d'un ancien bundle ou d'un
+    // appel parallèle déclenché pendant le chargement. On ne détruit pas la
+    // session locale pour une erreur réseau/serveur ; seule une réponse 401
+    // explicite doit invalider le token.
+    const message = error instanceof Error ? error.message : "";
+    if (/token invalide|expiré|utilisateur non trouvé|authorization/i.test(message)) {
+      logout();
+    }
   }
 }

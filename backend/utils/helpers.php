@@ -349,7 +349,9 @@ class RateLimiter
         }
 
         $data['count']++;
-        file_put_contents($file, json_encode($data), LOCK_EX);
+        // Le stockage peut être indisponible en lecture seule ; le rate limit
+        // reste alors non bloquant et ne doit jamais polluer la réponse JSON.
+        @file_put_contents($file, json_encode($data), LOCK_EX);
 
         return $data['count'] <= $maxAttempts;
     }

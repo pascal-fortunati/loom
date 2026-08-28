@@ -25,6 +25,9 @@ class Database
             ];
 
             $this->connection = new PDO($dsn, DB_USER, DB_PASS, $options);
+            // Force le jeu de caractères de la session PDO, indépendamment des
+            // réglages client MySQL du conteneur.
+            $this->connection->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
 
             if (APP_DEBUG) {
                 error_log('[Database] Connexion établie avec succès');

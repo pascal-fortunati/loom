@@ -1,0 +1,11 @@
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules
+**/dist
+**/vendor
+.git
+.gitignore
+_dossier_build
+docs
+*.log

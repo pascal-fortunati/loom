@@ -19,7 +19,13 @@ export async function apiRequest<T>(
     },
   });
 
-  const payload = (await response.json()) as ApiResponse<T>;
+  const responseText = await response.text();
+  let payload: ApiResponse<T>;
+  try {
+    payload = JSON.parse(responseText) as ApiResponse<T>;
+  } catch {
+    throw new Error("Le serveur a renvoyé une réponse invalide. Consulte les logs backend.");
+  }
   if (!response.ok || !payload.success) {
     throw new Error(payload.message || `Erreur HTTP ${response.status}`);
   }
