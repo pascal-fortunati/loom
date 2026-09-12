@@ -21,8 +21,10 @@ class PostModel
      */
     public function findById($postId)
     {
+        // pp.is_public est remonté pour permettre aux contrôleurs d'appliquer la
+        // confidentialité de la passion parente (ex: commentaires d'une page privée).
         $sql = 'SELECT p.id, p.passion_page_id, p.content, p.image_url, p.created_at,
-                        pp.user_id, u.username, u.avatar,
+                        pp.user_id, pp.is_public, u.username, u.avatar,
                         (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count,
                         (SELECT COUNT(*) FROM comments WHERE post_id = p.id) as comments_count
                 FROM posts p
