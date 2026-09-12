@@ -1,0 +1,3 @@
+# Garantit des fins de ligne LF pour les scripts exécutés dans des conteneurs Linux.
+# Sans cela, un clone sous Windows (core.autocrlf=true) casserait le shebang.
+*.sh text eol=lf
