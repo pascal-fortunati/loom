@@ -39,6 +39,16 @@ class CommentController
             Response::error('Post non trouvé', 404);
         }
 
+        // Applique la confidentialité de la passion parente : les commentaires
+        // d'une publication appartenant à une passion privée ne sont visibles
+        // que par son propriétaire.
+        if ((int)$post['is_public'] === 0) {
+            $payload = AuthMiddleware::authenticateOptional();
+            if ($payload === null || (int)$payload['user_id'] !== (int)$post['user_id']) {
+                Response::error('Vous n\'avez pas accès à cette page', 403);
+            }
+        }
+
         // Récupère les paramètres de pagination
         $limit = min((int)($queryParams['limit'] ?? 50), 200);
         $offset = max(0, (int)($queryParams['offset'] ?? 0));

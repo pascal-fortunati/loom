@@ -41,6 +41,17 @@ class PostController
             Response::error('Page de passion non trouvée', 404);
         }
 
+        // Applique la confidentialité de la page : une passion privée ne doit
+        // livrer ses publications qu'à son propriétaire. Sans ce contrôle, la
+        // route de détail était protégée mais celle des publications ne l'était
+        // pas (fuite de données).
+        if ((int)$page['is_public'] === 0) {
+            $payload = AuthMiddleware::authenticateOptional();
+            if ($payload === null || (int)$payload['user_id'] !== (int)$page['user_id']) {
+                Response::error('Vous n\'avez pas accès à cette page', 403);
+            }
+        }
+
         // Récupère les paramètres de pagination
         $limit = min((int)($queryParams['limit'] ?? 20), 100);
         $offset = max(0, (int)($queryParams['offset'] ?? 0));
