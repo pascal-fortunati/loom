@@ -72,7 +72,24 @@ define('APP_DEBUG', APP_ENV === 'development');
 // Sécurité JWT
 // ========================================
 
-define('JWT_SECRET', loomEnv('JWT_SECRET', 'dev_secret_a_changer_en_production'));
+// Le secret de signature ne doit JAMAIS avoir de valeur de repli en production :
+// un secret présent dans le dépôt permettrait à n'importe qui de forger un token
+// valide. En développement, une valeur par défaut est tolérée pour le confort.
+$loomJwtSecret = loomEnv('JWT_SECRET', '');
+
+if ($loomJwtSecret === '') {
+    if (APP_ENV === 'production') {
+        http_response_code(500);
+        error_log('[Config] JWT_SECRET absent : refus de démarrer en production.');
+        die(json_encode([
+            'success' => false,
+            'message' => 'Configuration serveur incomplète'
+        ]));
+    }
+    $loomJwtSecret = 'dev_secret_a_changer_en_production';
+}
+
+define('JWT_SECRET', $loomJwtSecret);
 define('JWT_ALGORITHM', loomEnv('JWT_ALGORITHM', 'HS256'));
 define('JWT_EXPIRATION', (int)loomEnv('JWT_EXPIRATION', 86400));
 
