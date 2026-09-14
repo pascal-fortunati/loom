@@ -13,6 +13,8 @@ services:
       - ./database/migration_add_messages.sql:/docker-entrypoint-initdb.d/02-messages.sql:ro
       - ./database/migration_add_notifications.sql:/docker-entrypoint-initdb.d/03-notifications.sql:ro
       - ./database/05-charset.sql:/docker-entrypoint-initdb.d/05-charset.sql:ro
+      # Restreint le compte applicatif aux 4 verbes DML (moindre privilège)
+      - ./database/06-grants.sh:/docker-entrypoint-initdb.d/06-grants.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s

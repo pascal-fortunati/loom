@@ -103,10 +103,13 @@ CREATE TABLE comments (
 -- Utilisateurs de test
 -- Mot de passe en clair pour les 3 comptes : password123
 -- (hash bcrypt généré avec password_hash(..., PASSWORD_BCRYPT))
+-- avatar laissé à NULL : les fichiers d'avatar ne sont pas versionnés (voir .gitignore),
+-- référencer un nom de fichier inexistant afficherait une image cassée. L'interface
+-- affiche alors les initiales de l'utilisateur, ce qui est le comportement prévu.
 INSERT INTO users (username, email, password_hash, avatar, bio) VALUES
-('alice_gaming', 'alice@example.com', '$2y$10$QmBe7Cr0cW1ugL1IyN8O/eXcRV4OqZ0gguk4gDj8KVBz0b9jaYzym', 'avatar1.jpg', 'Passionnée de jeux vidéo et esports'),
-('bob_cuisine', 'bob@example.com', '$2y$10$QmBe7Cr0cW1ugL1IyN8O/eXcRV4OqZ0gguk4gDj8KVBz0b9jaYzym', 'avatar2.jpg', 'Chef amateur qui adore cuisiner'),
-('carol_sport', 'carol@example.com', '$2y$10$QmBe7Cr0cW1ugL1IyN8O/eXcRV4OqZ0gguk4gDj8KVBz0b9jaYzym', 'avatar3.jpg', 'Athlète et fan de fitness');
+('alice_gaming', 'alice@example.com', '$2y$10$QmBe7Cr0cW1ugL1IyN8O/eXcRV4OqZ0gguk4gDj8KVBz0b9jaYzym', NULL, 'Passionnée de jeux vidéo et esports'),
+('bob_cuisine', 'bob@example.com', '$2y$10$QmBe7Cr0cW1ugL1IyN8O/eXcRV4OqZ0gguk4gDj8KVBz0b9jaYzym', NULL, 'Chef amateur qui adore cuisiner'),
+('carol_sport', 'carol@example.com', '$2y$10$QmBe7Cr0cW1ugL1IyN8O/eXcRV4OqZ0gguk4gDj8KVBz0b9jaYzym', NULL, 'Athlète et fan de fitness');
 
 -- Pages de passions pour Alice
 INSERT INTO passion_pages (user_id, name, description, is_public) VALUES

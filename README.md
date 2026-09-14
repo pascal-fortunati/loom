@@ -318,6 +318,40 @@ Une fois les conteneurs démarrés :
 | API via Nginx    | http://localhost:8080/backend/                |
 | MySQL            | accessible uniquement depuis le réseau Docker |
 
+## HTTPS local (optionnel) : https://loom.dock
+
+Un certificat de confiance local peut être généré avec [mkcert](https://github.com/FiloSottile/mkcert).
+
+1. Installer mkcert et son autorité de certification locale :
+
+```bash
+winget install FiloSottile.mkcert   # Windows (macOS : brew install mkcert)
+mkcert -install
+```
+
+2. Générer le certificat dans `certs/` (dossier ignoré par Git) :
+
+```bash
+mkdir certs
+mkcert -cert-file certs/loom.dock.pem -key-file certs/loom.dock-key.pem loom.dock "*.loom.dock" localhost 127.0.0.1 ::1
+```
+
+3. Faire pointer `loom.dock` vers la machine locale en ajoutant cette ligne au fichier hosts
+   (`C:\Windows\System32\drivers\etc\hosts` en administrateur, ou `/etc/hosts`) :
+
+```text
+127.0.0.1 loom.dock
+```
+
+4. Ajouter `https://loom.dock` à `ALLOWED_ORIGINS` dans `.env`, puis démarrer avec la surcouche HTTPS :
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.ssl.yml up -d --build
+```
+
+L'application est alors disponible sur **https://loom.dock** (le HTTP est redirigé vers HTTPS).
+Pour ne pas répéter les `-f`, on peut définir `COMPOSE_FILE` dans `.env` (voir `.env.example`).
+
 La base MySQL n'est volontairement pas publiée directement sur la machine hôte dans la configuration par défaut.
 
 Dans le réseau Docker, elle est accessible sous le nom :
@@ -351,6 +385,8 @@ Un modèle sans secrets est disponible dans :
 | `ALLOWED_ORIGINS` | Origines autorisées pour CORS          | `http://localhost:8080` |
 | `FRONTEND_PORT`   | Port exposé par le frontend            | `8080`                  |
 | `BACKEND_PORT`    | Port exposé par le backend             | `8081`                  |
+| `HTTP_PORT`       | Port HTTP de la surcouche HTTPS locale | `80`                    |
+| `HTTPS_PORT`      | Port HTTPS de la surcouche HTTPS locale | `443`                  |
 
 > Le fichier `.env` ne doit jamais être ajouté au dépôt Git.
 

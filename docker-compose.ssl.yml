@@ -1,0 +1,11 @@
+# Configuration pour Nginx avec SSL pour le frontend de l'application Loom
+# docker compose -f docker-compose.yml -f docker-compose.ssl.yml up -d --build
+# ou COMPOSE_FILE dans .env, voir .env.example
+services:
+  frontend:
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./frontend/nginx.ssl.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/certs:ro
