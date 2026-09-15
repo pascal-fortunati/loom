@@ -102,7 +102,8 @@ class AuthController
 
         // Anti-bruteforce : limite les tentatives de connexion par IP
         // (5 essais maximum sur une fenêtre de 5 minutes).
-        $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        // IP du vrai client, et non celle de nginx (voir ClientIp).
+        $clientIp = ClientIp::get();
         $rateKey = 'login:' . $clientIp;
         if (!RateLimiter::attempt($rateKey, 5, 300)) {
             Response::error(

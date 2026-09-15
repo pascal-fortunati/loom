@@ -315,6 +315,45 @@ class HtmlSanitizer
 }
 
 /**
+ * ADRESSE IP DU CLIENT derrière le reverse proxy.
+ *
+ * Derrière nginx, REMOTE_ADDR contient l'IP de nginx et non celle du client.
+ * L'en-tête X-Real-IP n'est lu que si la requête provient réellement d'un
+ * proxy de confiance (TRUSTED_PROXIES) : un client ne peut donc pas choisir
+ * l'IP retenue en envoyant lui-même cet en-tête.
+ */
+class ClientIp
+{
+    /**
+     * Retourne l'IP du client (celle vue par le proxy de confiance, sinon REMOTE_ADDR).
+     */
+    public static function get()
+    {
+        $remoteAddr = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $realIp = $_SERVER['HTTP_X_REAL_IP'] ?? '';
+
+        if (self::isTrustedProxy($remoteAddr) && filter_var($realIp, FILTER_VALIDATE_IP)) {
+            return $realIp;
+        }
+        return $remoteAddr;
+    }
+
+    /**
+     * Indique si l'IP appartient à un proxy déclaré (IP ou nom de service Docker résolu).
+     */
+    private static function isTrustedProxy($ip)
+    {
+        foreach (TRUSTED_PROXIES as $proxy) {
+            $proxyIps = filter_var($proxy, FILTER_VALIDATE_IP) ? [$proxy] : (gethostbynamel($proxy) ?: []);
+            if (in_array($ip, $proxyIps, true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+/**
  * LIMITEUR DE DÉBIT (anti-bruteforce) basé sur des fichiers.
  *
  * Simple et sans dépendance : compte les tentatives par clé (ex: IP) sur une
