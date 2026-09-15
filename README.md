@@ -174,7 +174,7 @@ L'application utilise une architecture frontend/backend séparée.
                      ┌─────────────────────┐
                      │      API PHP        │
                      │       Apache        │
-                     │        :8081        │
+                     │  :80 (réseau Docker)│
                      └──────────┬──────────┘
                                 │
                                 ▼
@@ -314,8 +314,8 @@ Une fois les conteneurs démarrés :
 | Service          | Adresse                                       |
 | ---------------- | --------------------------------------------- |
 | Application Loom | http://localhost:8080                         |
-| API PHP          | http://localhost:8081                         |
 | API via Nginx    | http://localhost:8080/backend/                |
+| API PHP (Apache) | accessible uniquement via Nginx               |
 | MySQL            | accessible uniquement depuis le réseau Docker |
 
 ## HTTPS local (optionnel) : https://loom.dock
@@ -384,7 +384,6 @@ Un modèle sans secrets est disponible dans :
 | `APP_ENV`         | Environnement d'exécution PHP          | `production`            |
 | `ALLOWED_ORIGINS` | Origines autorisées pour CORS          | `http://localhost:8080` |
 | `FRONTEND_PORT`   | Port exposé par le frontend            | `8080`                  |
-| `BACKEND_PORT`    | Port exposé par le backend             | `8081`                  |
 | `HTTP_PORT`       | Port HTTP de la surcouche HTTPS locale | `80`                    |
 | `HTTPS_PORT`      | Port HTTPS de la surcouche HTTPS locale | `443`                  |
 

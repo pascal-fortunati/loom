@@ -102,5 +102,16 @@ define('ALLOWED_ORIGINS', array_values(array_filter(array_map(
     explode(',', loomEnv('ALLOWED_ORIGINS', 'http://localhost:8080'))
 ))));
 
+// ========================================
+// Reverse proxy de confiance
+// ========================================
+
+// Hôtes (nom de service Docker ou IP) autorisés à transmettre l'IP du client
+// via X-Real-IP. Vide par défaut : sans proxy déclaré, seul REMOTE_ADDR compte.
+define('TRUSTED_PROXIES', array_values(array_filter(array_map(
+    'trim',
+    explode(',', loomEnv('TRUSTED_PROXIES', ''))
+))));
+
 // Force UTF-8 pour les réponses et les connexions MySQL.
 ini_set('default_charset', 'UTF-8');

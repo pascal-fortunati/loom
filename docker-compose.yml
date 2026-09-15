@@ -40,11 +40,13 @@ services:
       JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8080}
+      # Seul nginx (service frontend) peut transmettre l'IP du client via X-Real-IP
+      TRUSTED_PROXIES: frontend
     depends_on:
       database:
         condition: service_healthy
-    ports:
-      - "${BACKEND_PORT:-8081}:80"
+    # Aucun port publié sur l'hôte : l'API n'est joignable que par Nginx,
+    # via le réseau Docker interne (http://backend:80).
     volumes:
       - uploads_data:/var/www/html/uploads
     networks: [loom]
